@@ -1,4 +1,4 @@
-package model;
+package com;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -55,12 +55,14 @@ public class payment {
 		 // execute the statement
 		 preparedStmt.execute(); 
 		 con.close(); 
-		 output = "Inserted successfully"; 
+		 String newItems = readPayment();
+		 output = "{\"status\":\"success\", \"data\": \"" +
+		 newItems + "\"}"; 
 		 } 
 		 catch (Exception e) 
 		 { 
-		 output = "Error while inserting the item."; 
-		 System.err.println(e.getMessage()); 
+			 output = "{\"status\":\"error\", \"data\":\"Error while insertind.\"}";
+			 System.err.println(e.getMessage()); 
 		 } 
 		 return output; 
 		 } 
@@ -79,7 +81,7 @@ public class payment {
 					 return "Error while connecting to the database for reading."; }
 				 
 				 // Prepare the html table to be displayed
-				 output = "<table border='1'><tr><th>Payment ID</th><th>Card No</th>" +
+				 output = "<table border='1'><tr><th>Card No</th>" +
 						 "<th>Name On Card</th>" +
 						 "<th>Expire Date</th>" +
 						 "<th>CVC</th>" +
@@ -102,18 +104,18 @@ public class payment {
 					
 					 
 					 // Add into the html table
-					 output += "<tr><td>" + paymentID + "</td>";
-					 output += "<td>" + cardNo + "</td>";
+					 output += "<tr><td><input id='hidItemIDUpdate'name='hidItemIDUpdate'type='hidden' value='" + paymentID + "'>"
+							 + cardNo + "</td>";
 					 output += "<td>" + nameOnCard + "</td>";
 					 output += "<td>" + expireDate + "</td>";
 					 output += "<td>" + cvc + "</td>";
 					 output += "<td>" + totalAmount + "</td>";
 					 
 					 // buttons
-					 output += "<td><input name='btnUpdate' type='button' value='Update'class='btn btn-secondary'></td>"
-							 + "<td><form method='post' action='items.jsp'>"+"<input name='btnRemove' type='submit' value='Remove'class='btn btn-danger'>"
-							 + "<input name='project_id' type='hidden' value='" + paymentID
-							 + "'>" + "</form></td></tr>";
+					 output += "<td><input name='btnUpdate' type='button' value='Update' "
+							 + "class='btnUpdate btn btn-secondary' data-itemid='" + paymentID + "'></td>"
+							 + "<td><input name='btnRemove' type='button' value='Remove' "
+							 + "class='btnRemove btn btn-danger' data-itemid='" + paymentID + "'></td></tr>";
 				 }
 				 con.close();
 				 // Complete the html table
@@ -125,4 +127,79 @@ public class payment {
 			 }
 			 return output;
 		 } 
+		
+		public String updatePayment(String paymentID,String cardNo, String nameOnCard, String expireDate, String cvc ,String totalAmount){
+			 
+			String output = "";
+		 
+			 try {
+				 
+				 Connection con = connect();
+				 
+				 if (con == null){
+					 return "Error while connecting to the database for updating."; 
+				 }
+				 
+				 // create a prepared statement
+				 String query = "UPDATE payment SET cardNo=?,nameOnCard=?,expireDate=?,cvc=?,totalAmount=? WHERE paymentID=?";
+				 
+				 PreparedStatement preparedStmt = con.prepareStatement(query);
+				 
+				 // binding values
+				 
+				
+				 preparedStmt.setInt(1, Integer.parseInt(cardNo));
+				 preparedStmt.setString(2, nameOnCard);
+				 preparedStmt.setString(3, expireDate);
+				 preparedStmt.setInt(4,Integer.parseInt(cvc));
+				 preparedStmt.setDouble(5,Double.parseDouble(totalAmount));
+				 preparedStmt.setInt(6,Integer.parseInt(paymentID));
+				 
+				 // execute the statement
+				 preparedStmt.execute();
+				 con.close();
+				 String newItems = readPayment();
+				 output = "{\"status\":\"success\", \"data\": \"" +
+				 newItems + "\"}";
+			 }
+			 catch (Exception e){
+				 output = "{\"status\":\"error\", \"data\":\"Error while updating.\"}";
+				 System.err.println(e.getMessage());
+			 }
+			 return output;
+		} 
+		
+		public String deletePayment(String paymentID){
+		 
+			 String output = "";
+			 
+			 try {
+					 
+				 Connection con = connect();
+				 
+				 if (con == null){
+					 return "Error while connecting to the database for deleting."; 
+				 }
+				 
+				 // create a prepared statement
+				 String query = "delete from payment where paymentID=?";
+				 PreparedStatement preparedStmt = con.prepareStatement(query);
+				 
+				 // binding values
+				 preparedStmt.setInt(1, Integer.parseInt(paymentID));
+				 
+				 // execute the statement
+				 preparedStmt.execute();
+				 con.close();
+				 String newItems = readPayment();
+				 output = "{\"status\":\"success\", \"data\": \"" +
+				 newItems + "\"}";
+			 }
+			 catch (Exception e){
+				 output = "{\"status\":\"error\", \"data\":\"Error while deleting.\"}";
+				 System.err.println(e.getMessage());
+			 }
+			 return output;
+			 }
+		
 }

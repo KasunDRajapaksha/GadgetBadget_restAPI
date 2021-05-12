@@ -1,4 +1,4 @@
-package model;
+package com;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -54,12 +54,16 @@ public class cart {
 	 // execute the statement
 	 preparedStmt.execute(); 
 	 con.close(); 
-	 output = "Inserted successfully"; 
+
+	 String newItems = readCart();
+	 output = "{\"status\":\"success\", \"data\": \"" +
+	 newItems + "\"}";
+
 	 } 
 	 catch (Exception e) 
 	 { 
-	 output = "Error while inserting the item."; 
-	 System.err.println(e.getMessage()); 
+		 output = "{\"status\":\"error\", \"data\":\"Error while inserting.\"}"; 
+		 System.err.println(e.getMessage()); 
 	 } 
 	 return output; 
 	 } 
@@ -80,7 +84,7 @@ public class cart {
 			 
 			 // Prepare the html table to be displayed
 			 output = "<table border='1'><tr><th>Product ID</th><th>Added date</th>" +
-					 "<th>qty</th></tr>";
+					 "<th>qty</th><th>Update</th><th>Remove</th></tr>";
 		
 			 String query = "select * from cart";
 			 Statement stmt = con.createStatement();
@@ -95,22 +99,23 @@ public class cart {
 				 String qty = Integer.toString(rs.getInt("qty"));
 				 
 				 // Add into the html table
-				 output += "<td>" + product_id + "</td>";
+				 output += "<tr><td><input id='hidItemIDUpdate'name='hidItemIDUpdate'type='hidden' value='" + cart_id + "'>"
+						 + product_id + "</td>";
 				 output += "<td>" + added_date + "</td>";
 				 output += "<td>" + qty + "</td>";
 				 
 				 // buttons
-				 output += "<td><input name='btnUpdate' type='button' value='Update'class='btn btn-secondary'></td>"
-						 + "<td><form method='post' action='items.jsp'>"+"<input name='btnRemove' type='submit' value='Remove'class='btn btn-danger'>"
-						 + "<input name='project_id' type='hidden' value='" + cart_id
-						 + "'>" + "</form></td></tr>";
+				 output += "<td><input name='btnUpdate' type='button' value='Update' "
+						 + "class='btnUpdate btn btn-secondary' data-itemid='" + cart_id + "'></td>"
+						 + "<td><input name='btnRemove' type='button' value='Remove' "
+						 + "class='btnRemove btn btn-danger' data-itemid='" + cart_id + "'></td></tr>";
 			 }
 			 con.close();
 			 // Complete the html table
 			 output += "</table>";
 		 }
 		 catch (Exception e){
-			 output = "Error while reading the items.";
+			 output = "Error while reading.";
 			 System.err.println(e.getMessage());
 		 }
 		 return output;
@@ -143,10 +148,12 @@ public class cart {
 			 // execute the statement
 			 preparedStmt.execute();
 			 con.close();
-			 output = "Updated successfully";
+			 String newItems = readCart();
+			 output = "{\"status\":\"success\", \"data\": \"" +
+			 newItems + "\"}";
 		 }
 		 catch (Exception e){
-			 output = "Error while updating the item.";
+			 output = "{\"status\":\"error\", \"data\":\"Error while updating.\"}";
 			 System.err.println(e.getMessage());
 		 }
 		 return output;
@@ -174,10 +181,12 @@ public class cart {
 			 // execute the statement
 			 preparedStmt.execute();
 			 con.close();
-			 output = "Deleted successfully";
+			 String newItems = readCart();
+			 output = "{\"status\":\"success\", \"data\": \"" +
+			 newItems + "\"}";
 		 }
 		 catch (Exception e){
-			 output = "Error while deleting the item.";
+			 output = "{\"status\":\"error\", \"data\":\"Error while deleting.\"}";
 			 System.err.println(e.getMessage());
 		 }
 		 return output;

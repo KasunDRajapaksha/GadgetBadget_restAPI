@@ -1,15 +1,15 @@
-package com;
+package model;
 
 
 
 import javax.ws.rs.core.MediaType;
-
-import model.cart;
-
 //For REST Service
 import javax.ws.rs.*;
+
+import com.cart;
 //For JSON
 import com.google.gson.*;
+
 //For XML
 import org.jsoup.*;
 import org.jsoup.parser.*;
